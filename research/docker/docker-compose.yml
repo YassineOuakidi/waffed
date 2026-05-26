@@ -1,0 +1,29 @@
+version: '3.8'
+services:
+  dvwa:
+    image: vulnerables/web-dvwa
+    container_name: dvwa_target
+    restart: always
+    networks:
+      - waf_net
+
+  modsec:
+    image: owasp/modsecurity-crs:nginx
+    container_name: modsec_proxy
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - PROXY_LOCATION=http://dvwa:80/
+      - PORT=8080
+      - SEC_RULE_ENGINE=On
+      - BLOCKING_PARANOIA=2
+    networks:
+      - waf_net
+    depends_on:
+      - dvwa
+
+networks:
+  waf_net:
+    driver: bridge
+
