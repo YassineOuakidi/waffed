@@ -1,0 +1,8 @@
+9001|BLOCK|URI|../
+9002|BLOCK|URI|%2e%2e%2f
+9003|BLOCK|BODY|<script>
+9004|BLOCK|URI|UNION ALL SELECT
+9005|BLOCK|HEADER:User-Agent|masscan
+9006|BLOCK|URI|/etc/passwd
+9007|BLOCK|BODY|; rm -rf
+9008|BLOCK|HEADER:Content-Type|application/x-java-archive
