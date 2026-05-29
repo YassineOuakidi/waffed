@@ -1,14 +1,16 @@
 
 ---
-
-# Infrastructure & Baseline Definition
+# Phase 1: Infrastructure & Baseline Definition
 
 ## 1. Topography & Architecture
+To accurately benchmark the WAF, I established an isolated, containerized environment. The architecture strictly enforces a perimeter proxy model, ensuring no direct external access to the vulnerable backend.
+
 * **Target Application:** DVWA (Isolated Docker Network)
-* **WAF/Proxy:** Nginx + libmodsecurity3 (Listening on 8080)
+* **WAF/Proxy:** Nginx + libmodsecurity3 (Listening on port 8080)
 * **Ruleset:** OWASP Core Rule Set v3.3 (Paranoia Level 2)
 
 ## 2. Configuration & Routing
+The services are deployed via Docker Compose, utilizing a dedicated bridge network (`waf_net`). The DVWA container does not expose any host ports, physically forcing all traffic through the ModSecurity reverse proxy.
 
 ```yaml
 version: '3.8'
@@ -41,40 +43,37 @@ networks:
     driver: bridge
 ```
 
-We placed the Two containers in the same bridge network, without exposing the DVWA container. So our real data path is:
-- Browser / curl / postman
-- ModSecurity + NGINX reverse Proxy: 127.0.0.1:8080
-- Docker bridge network: waf_net
-- DVWA internal service http://dvwa:80
+**The strict data path:**
+* Browser / curl / postman
+* ModSecurity + NGINX reverse Proxy: `127.0.0.1:8080`
+* Docker bridge network: `waf_net`
+* DVWA internal service `http://dvwa:80`
 
-![Docker_Net_Archi](Pasted image 20260526193602.png)
+![Docker Network Architecture](../../assets/images/Pasted%20image%2020260526193602.png)
 
-## 3. Sanity Check
+## 3. Verification & Sanity Checks
 
-#### 1. Proving the proxy redirects data to DVWA:
+### 3.1 Network Isolation Validation
+First, I verified that the proxy correctly routes traffic to the internal DVWA container:
 
-![](Pasted image 20260526193913.png)
+![Proxy Routing Success](../../assets/images/Pasted%20image%2020260526193913.png)
 
-But when trying to reach the DVWA directly we get a Failed to connect error:
+Next, I confirmed the network isolation by attempting to reach the DVWA backend directly. The connection was successfully refused, proving that perimeter enforcement is intact:
 
-![[Pasted image 20260526194026.png]]
+![Direct Backend Blocked](../../assets/images/Pasted%20image%2020260526194026.png)
 
-So the Request has to go through the WAF.
+### 3.2 Baseline Detection Capabilities
+To establish a detection baseline, I injected standard, un-obfuscated SQLi payloads (both generic and time-based). 
 
-Let's try and execute an SQLI attack (we ll try both Basic and Time Based):
+![WAF SQLi Intercept](../../assets/images/Pasted%20image%2020260526194253.png)
 
-![[Pasted image 20260526194253.png]]
-
-Even the Time based one gets blocked instantly by the WAF.
-
-So we pulled out the logs to see why exactly it is blocked :
+Both vectors were instantly intercepted and dropped by the WAF. Extracting the container logs reveals the specific mechanisms ModSecurity relies on for these intercepts:
 
 ```bash
 sudo docker logs modsec_proxy | tail -n 3 > log
 ```
 
-- First HTTP REQUEST(Simple SQL injection):
-
+**First HTTP REQUEST (Simple SQL injection):**
 ```json
 "messages":[
 {
@@ -96,8 +95,7 @@ sudo docker logs modsec_proxy | tail -n 3 > log
 }
 ```
 
-- Time based SQL injection:
-
+**Time-based SQL injection:**
 ```json
 {
 "message":"Detects blind sqli tests using sleep() or benchmark()",
@@ -116,14 +114,17 @@ sudo docker logs modsec_proxy | tail -n 3 > log
 	"accuracy":"0"}}
 ```
 
-let s check the rules:
+### 3.3 Rule Architecture Analysis
+Analyzing the triggered rules in the OWASP CRS configuration (`REQUEST-942-APPLICATION-ATTACK-SQLI.conf`) exposes the WAF's core dependency on heavy regular expressions (PCRE). 
 
-```
+The first rule relies on `libinjection`:
+
+```text
 # -=[ LibInjection Check ]=-
 #
 # There is a stricter sibling of this rule at 942101. It covers REQUEST_BASENAME and REQUEST_FILENAME.
 #
-# Ref: https://github.com/libinjection/libinjection
+# Ref: [https://github.com/libinjection/libinjection](https://github.com/libinjection/libinjection)
 #
 SecRule REQUEST_COOKIES|REQUEST_COOKIES_NAMES|REQUEST_HEADERS:User-Agent|REQUEST_HEADERS:Referer|ARGS_NAMES|ARGS|XML:/* "@detectSQLi" \
     "id:942100,\
@@ -148,14 +149,13 @@ SecRule REQUEST_COOKIES|REQUEST_COOKIES_NAMES|REQUEST_HEADERS:User-Agent|REQUEST
     setvar:'tx.sql_injection_score=+%{tx.critical_anomaly_score}'"
 ```
 
-Also, after reviewing the rules file for sqli, it shows that modsecurity focuses a lot on Regular expressions:
+However, subsequent fallback rules rely on massively complex, sequential regex structures:
 
-```r
+```text
 SecRule REQUEST_URI_RAW|ARGS|REQUEST_HEADERS|!REQUEST_HEADERS:Referer|FILES|XML:/* "@rx (?i)(?:[/\x5c]|%(?:2(?:f|5(?:2f|5c|c(?:1%259c|0%25af))|%46)|5c|c(?:0%(?:[2aq]f|5c|9v)|1%(?:[19p]c|8s|af))|(?:bg%q|(?:e|f(?:8%8)?0%8)0%80%a)f|u(?:221[56]|EFC8|F025|002f)|%3(?:2(?:%(?:%6|4)6|F)|5%%63)|1u)|0x(?:2f|5c))(?:\.(?:%0[01]|\?)?|\?\.?|%(?:2(?:(?:5(?:2|c0%25a))?e|%45)|c0(?:\.|%[256aef]e)|u(?:(?:ff0|002)e|2024)|%32(?:%(?:%6|4)5|E)|(?:e|f(?:(?:8|c%80)%8)?0%8)0%80%ae)|0x2e){2,3}(?:[/\x5c]|%(?:2(?:f|5(?:2f|5c|c(?:1%259c|0%25af))|%46)|5c|c(?:0%(?:[2aq]f|5c|9v)|1%(?:[19p]c|8s|af))|(?:bg%q|(?:e|f(?:8%8)?0%8)0%80%a)f|u(?:221[56]|EFC8|F025|002f)|%3(?:2(?:%(?:%6|4)6|F)|5%%63)|1u)|0x(?:2f|5c))" \
-```
 
-```r
 SecRule REQUEST_COOKIES|REQUEST_COOKIES_NAMES|ARGS_NAMES|ARGS|REQUEST_FILENAME|XML:/* "@rx <(?:a(?:bbr|cronym|ddress|pplet|rea|udioscope)?|b(?:ase(?:front)?|do|gsound|ig|l(?:(?:ackfac|ockquot)e|ink)|ody|[qr]|utton)?|c(?:aption|enter|ite|o(?:de|l(?:group)?|mment))|d(?:[dt]|e?l|fn|i[rv])|em(?:bed)?|f(?:ieldset|n|o(?:nt|rm)|rame(?:set)?)|h(?:[1r]|ead|tml)|i(?:frame|layer|mg|n(?:put|s)|sindex)?|k(?:db|eygen)|l(?:a(?:bel|yer)|egend|i(?:mittext|nk|sting)?)|m(?:a(?:p|rquee)|e(?:nu|ta)|ulticol)|no(?:br|embed|frames|s(?:cript|martquotes))|o(?:bject|l|pt(?:group|ion))|p(?:aram|laintext|re)?|q|r(?:t|uby)|s(?:amp|cript|e(?:lect|rver)|hadow|idebar|mall|pa(?:cer|n)|t(?:r(?:ike|ong)|yle)|u[bp])?|t(?:(?:ab|it)le|body|[dr]|extarea|(?:foo)?t|h(?:ead)?)|ul?|(?:va|wb)r|xm[lp])[^0-9A-Z_a-z]" \
 ```
 
-Heavy Regex => Heavy work on the CPU, so let's try and evade it using `PyTest` this WAF and see what happens.
+## 4. Conclusion
+The baseline confirms that ModSecurity heavily utilizes PCRE to evaluate state. Because sequential regex evaluation introduces significant computational overhead, this architecture presents a potential vulnerability to resource exhaustion. The next phase will utilize automated test harnesses to intentionally stress these regex engines and identify both structural bypasses (parser differentials) and performance degradation (ReDoS).
