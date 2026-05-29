@@ -14,7 +14,7 @@ services:
     ports:
       - "8080:8080"
     environment:
-      - PROXY_LOCATION=http://dvwa:80/
+      - BACKEND=http://dvwa_target:80
       - PORT=8080
       - SEC_RULE_ENGINE=On
       - BLOCKING_PARANOIA=2

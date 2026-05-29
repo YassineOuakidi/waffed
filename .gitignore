@@ -1,0 +1,21 @@
+# Build Artifacts
+engine/build/*
+*.o
+*.out
+*.so
+*.a
+
+# Logs (Keep the directories, ignore the contents)
+logs/engine/*
+logs/php/*
+logs/security/*
+!logs/**/.gitkeep
+
+# Python / Test Caches
+__pycache__/
+*.pyc
+
+# IDEs / OS files
+.vscode/
+.idea/
+.DS_Store

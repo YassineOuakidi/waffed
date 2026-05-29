@@ -131,7 +131,6 @@ int ac_search(ac_node_t *root, char *buff , const char* expected_zone)
             }
             temp = temp->fail;
         }
-
         i++;
     }
 
