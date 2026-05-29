@@ -47,13 +47,13 @@ We placed the Two containers in the same bridge network, without exposing the DV
 - Docker bridge network: waf_net
 - DVWA internal service http://dvwa:80
 
-![[Pasted image 20260526193602.png]]
+![Docker_Net_Archi](Pasted image 20260526193602.png)
 
 ## 3. Sanity Check
 
 #### 1. Proving the proxy redirects data to DVWA:
 
-![[Pasted image 20260526193913.png]]
+![](Pasted image 20260526193913.png)
 
 But when trying to reach the DVWA directly we get a Failed to connect error:
 
