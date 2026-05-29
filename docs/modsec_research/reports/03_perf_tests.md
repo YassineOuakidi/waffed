@@ -1,11 +1,12 @@
 
 ---
+# Phase 3: Performance & Cost Analysis (The ReDoS Bottleneck)
 
 ## 1. The Objective
 The goal of this phase was to measure the true computational cost of ModSecurity's regex-heavy architecture. Specifically, I wanted to prove that relying on sequential PCRE evaluation creates a structural vulnerability to CPU starvation attacks, commonly known as Regular Expression Denial of Service (ReDoS).
 
 ## 2. The Methodology
-To simulate a realistic, distributed attack, I deployed a Locust load-testing swarm against the proxy. The swarm ramped up to 100 concurrent users, sustaining a rate of 100 requests per second. 
+To simulate a realistic, distributed attack, I deployed a Locust load-testing swarm against the proxy. The swarm ramped up to 100 concurrent users, sustaining a rate of 100 requests per second over a sustained window. 
 
 Mixed into the standard traffic was a pathological payload designed specifically to force catastrophic backtracking in the OWASP CRS regex engines:
 `admin' OR '1'='1' OR '1'='1... [Repeated x300]`
@@ -64,11 +65,11 @@ class ModSecStressTest(HttpUser):
 ## 3. The Telemetry
 I captured both latency metrics (via Locust) and system resource utilization (via containerized hardware tracking) at peak load.
 
+![ReDoS CPU Spike Telemetry](../../assets/images/Pasted%20image%2020260529014213.png)
 
-![[Pasted image 20260529014213.png]]
-
-* **WAF Proxy (modsec_proxy):** 205.20% CPU utilization
-* **Backend Target (dvwa_target):** 41.08% CPU utilization
+**Hardware CPU Allocation:**
+* **WAF Proxy (modsec_proxy):** `205.20%` CPU utilization
+* **Backend Target (dvwa_target):** `41.08%` CPU utilization
 
 **Latency Degradation (TTFB):**
 

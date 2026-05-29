@@ -4,21 +4,17 @@
     "type": "split",
     "children": [
       {
-        "id": "1c8016e0b94c039d",
+        "id": "cc5e650680209205",
         "type": "tabs",
         "children": [
           {
-            "id": "94161121514f8259",
+            "id": "1148f5f62dbd51f2",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "01_baseline_setup.md",
-                "mode": "source",
-                "source": false
-              },
+              "type": "empty",
+              "state": {},
               "icon": "lucide-file",
-              "title": "01_baseline_setup"
+              "title": "New tab"
             }
           }
         ]
@@ -183,13 +179,15 @@
       "bases:Create new base": false
     }
   },
-  "active": "94161121514f8259",
+  "active": "1148f5f62dbd51f2",
   "lastOpenFiles": [
-    "Pasted.md",
-    "01_baseline_setup.md",
-    "02_efficacy_tests.md",
-    "03_perf_tests.md",
+    "Pasted image 20260526193602.png",
+    "Pasted image 20260526193913.png",
     "Pasted image 20260529014213.png",
+    "03_perf_tests.md",
+    "02_efficacy_tests.md",
+    "01_baseline_setup.md",
+    "Pasted.md",
     "Pasted image 20260529013118.png",
     "Pasted image 20260529012356.png",
     "Pasted image 20260528231632.png",
