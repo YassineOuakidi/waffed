@@ -23,6 +23,7 @@ typedef struct {
 
 int parse_http_request(char *raw_buffer, http_request_t *req);
 void normalize(http_request_t *req);
+void normalize_rule_pattern(char *s, const char *zone);
 void free_http_request(http_request_t* req);
 
 #endif

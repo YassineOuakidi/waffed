@@ -5,16 +5,15 @@
 
 //first we identify the pipeline 
 //1. ascii_decode
-//2. unicode_decode
-//4. multiple_slash_norm
-//5. backslash replacement
-//6. High ascii Detection
+//2. multiple_slash_norm
+//3. backslash replacement
 
-void decoder(char *src)
+int decoder(char *src)
 {
     char hex[3];
     int i = 0;
     int j = 0;
+    int changed = 0;
 
     while(src[i])
     {
@@ -45,6 +44,7 @@ void decoder(char *src)
             unsigned char decoded = (unsigned char)strtol(hex, NULL, 16);
             if (decoded == '\0') decoded = ' ';
             src[j] = tolower(decoded);
+            changed = 1;
             j++;
             i+=jump;
         }
@@ -52,6 +52,7 @@ void decoder(char *src)
         {
             src[j] = ' ';
             i++;j++;
+            changed = 1;
         }
         else
         {
@@ -60,21 +61,36 @@ void decoder(char *src)
         }
     }
     src[j] = '\0';
+    return changed;
+}
+
+static void decode_repeated(char *src)
+{
+    if (src == NULL)
+        return;
+
+    for (int pass = 0; pass < 4; pass++)
+    {
+        int changed = decoder(src);
+
+        if (!changed)
+            break;
+    }
 }
 
 void decode_ascii(http_request_t *req)
 {
     //first we proces the uri
-    decoder(req->uri);
+    decode_repeated(req->uri);
     
     //then we process the body
     if(req->body != NULL)
-        decoder(req->body);
+        decode_repeated(req->body);
 
     //then we process headers values
     for(int i = 0 ; i < req->header_count ; i++)
     {
-        decoder(req->headers[i].value);
+        decode_repeated(req->headers[i].value);
     }
     
 }
@@ -115,4 +131,15 @@ void normalize(http_request_t* req)
 {
     decode_ascii(req);
     slash_handler(req);
+}
+
+void normalize_rule_pattern(char *s, const char *zone)
+{
+    if (s == NULL)
+        return;
+
+    decode_repeated(s);
+
+    if (zone == NULL || strncmp(zone, "BODY", 4) != 0)
+        merge_slash(s);
 }

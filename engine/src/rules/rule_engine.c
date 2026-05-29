@@ -4,11 +4,16 @@
 
 int check_conn(http_request_t* req , ac_node_t* root)
 {
-    if(ac_search(root , req->uri , "URI") == 1) return 1;
-    if(req->body && ac_search(root , req->body , "BODY") == 1) return 1;
+    int score = 0;
+    score += ac_search(root, req->uri, "URI", NULL);
+
+    if(req->body)
+        score += ac_search(root , req->body , "BODY" , NULL);
+    
     for(int i = 0 ; i < req->header_count ;i++)
-        if(ac_search(root , req->headers[i].value , "HEADER") == 1) return 1;
-    return 0;
+        score += ac_search(root , req->headers[i].value , "HEADER" , req->headers[i].name);
+
+    return score;
 }
 
 int inspect_traffic(connection_t *conn , waf_rules_t *rules , ac_node_t* root)
@@ -26,6 +31,7 @@ int inspect_traffic(connection_t *conn , waf_rules_t *rules , ac_node_t* root)
     if((parse_http_request(conn->client_buffer , &req)) < 0)
     {
         printf("Error Parsing the request");
+        free_http_request(&req);
         return -1;
     }
 

@@ -3,6 +3,29 @@
 #include "../../include/rules/aho_corasick.h"
 
 
+static int zone_matches(const char *rule_zone,
+                        const char *expected_zone,
+                        const char *header_name)
+{
+    if (rule_zone == NULL || expected_zone == NULL)
+        return 0;
+
+    if (strcasecmp(rule_zone, "ANY") == 0)
+        return 1;
+
+    if (strcasecmp(rule_zone, expected_zone) == 0)
+        return 1;
+
+    if (strcasecmp(expected_zone, "HEADER") == 0 &&
+        strncasecmp(rule_zone, "HEADER:", 7) == 0 &&
+        header_name != NULL)
+    {
+        return strcasecmp(rule_zone + 7, header_name) == 0;
+    }
+
+    return 0;
+}
+
 q_t *create_queue()
 {
     q_t *q = calloc(1 , sizeof(q_t));
@@ -94,12 +117,14 @@ void ac_build_failure_links(ac_node_t* root)
     free(q);
 }
 
-int ac_search(ac_node_t *root, char *buff , const char* expected_zone)
+int ac_search(ac_node_t *root, char *buff , const char* expected_zone , const char *header_name)
 {
     if (buff == NULL || root == NULL) return 0; 
 
     ac_node_t *current_node = root;
     int i = 0;
+
+    int accumulated_score = 0;
 
     while (buff[i])
     {
@@ -122,19 +147,19 @@ int ac_search(ac_node_t *root, char *buff , const char* expected_zone)
         ac_node_t *temp = current_node;
         while (temp != root)
         {
-            if (temp->rule != NULL && (strcmp(temp->rule->zone , expected_zone) == 0 || strcmp(temp->rule->zone, "ANY") == 0))
+            if (temp->rule != NULL && zone_matches(temp->rule->zone, expected_zone, header_name))
             {
                 printf("WAF BLOCK: Rule ID '%s' triggered in URI! Match: '%s'\n", 
                        temp->rule->id, 
                        temp->rule->match_string);
-                return 1; 
+                accumulated_score += temp->rule->score; 
             }
             temp = temp->fail;
         }
         i++;
     }
 
-    return 0; 
+    return accumulated_score; 
 }
 
 void ac_free(ac_node_t *node)

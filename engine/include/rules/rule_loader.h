@@ -5,13 +5,15 @@
 #include <fcntl.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 
 
 typedef struct rule{
     char* id;
-    char* action;
+    int score;
     char* zone;
     char* match_string;
+    size_t match_len;
 } rule_t;
 
 typedef struct {

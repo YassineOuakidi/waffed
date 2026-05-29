@@ -2,6 +2,8 @@
 
 #include "../../include/core/event_loop.h"
 #include <errno.h>
+#include <ctype.h>
+#include <strings.h>
 #include "../../include/rules/rule_engine.h"
 
 void safe_destroy(connection_t *conn, struct epoll_event *events, int current_idx, int nfds) 
@@ -16,6 +18,113 @@ void safe_destroy(connection_t *conn, struct epoll_event *events, int current_id
         }
     }
 }
+
+
+static int header_name_equals(const char *start, size_t len, const char *expected)
+{
+    return strlen(expected) == len && strncasecmp(start, expected, len) == 0;
+}
+
+static int parse_content_length_strict(const char *value_start, const char *value_end, int *out)
+{
+    long value = 0;
+    const char *p = value_start;
+
+    while (p < value_end && (*p == ' ' || *p == '\t'))
+        p++;
+
+    if (p >= value_end)
+        return -1;
+
+    while (p < value_end)
+    {
+        if (!isdigit((unsigned char)*p))
+            break;
+
+        value = value * 10 + (*p - '0');
+
+        if (value > 8192)
+            return -1;
+
+        p++;
+    }
+
+    while (p < value_end && (*p == ' ' || *p == '\t'))
+        p++;
+
+    if (p != value_end)
+        return -1;
+
+    *out = (int)value;
+    return 0;
+}
+
+static int request_complete_for_now(connection_t *conn)
+{
+    char *header_end = strstr(conn->client_buffer, "\r\n\r\n");
+
+    if (header_end == NULL)
+        return 0;
+
+    int content_length = 0;
+    int have_content_length = 0;
+
+    char *first_line_end = strstr(conn->client_buffer, "\r\n");
+
+    if (first_line_end == NULL || first_line_end > header_end)
+        return -1;
+
+    char *line = first_line_end + 2;
+
+    while (line < header_end)
+    {
+        char *line_end = strstr(line, "\r\n");
+
+        if (line_end == NULL || line_end > header_end)
+            return -1;
+
+        char *colon = memchr(line, ':', (size_t)(line_end - line));
+
+        if (colon == NULL)
+            return -1;
+
+        size_t name_len = (size_t)(colon - line);
+        char *value_start = colon + 1;
+
+        if (header_name_equals(line, name_len, "Transfer-Encoding"))
+            return -1;
+
+        if (header_name_equals(line, name_len, "Content-Length"))
+        {
+            int parsed_len = 0;
+
+            if (parse_content_length_strict(value_start, line_end, &parsed_len) < 0)
+                return -1;
+
+            if (have_content_length && parsed_len != content_length)
+                return -1;
+
+            content_length = parsed_len;
+            have_content_length = 1;
+        }
+
+        line = line_end + 2;
+    }
+
+    int header_size = (int)((header_end - conn->client_buffer) + 4);
+    int total_needed = header_size + content_length;
+
+    if (total_needed >= (int)sizeof(conn->client_buffer))
+        return -1;
+
+    if (conn->client_buffer_len < total_needed)
+        return 0;
+
+    return 1;
+}
+
+
+
 
 void start_loop_event(int listen_sock , waf_rules_t *rules , ac_node_t* root)
 {
@@ -92,15 +201,25 @@ void start_loop_event(int listen_sock , waf_rules_t *rules , ac_node_t* root)
                 if(len > 0 )
                 {
                     conn->client_buffer_len += len;
-                    
                     conn->client_buffer[conn->client_buffer_len] = '\0';
-                    if(strstr(conn->client_buffer , "\r\n\r\n") == NULL)
+
+                    int complete = request_complete_for_now(conn);
+
+                    if (complete == 0)
                         continue;
+
+                    if (complete < 0)
+                    {
+                        char *bad = "HTTP/1.1 400 Bad Request\r\nContent-Length: 12\r\n\r\nBad Request\n";
+                        send(conn->client_fd, bad, strlen(bad), 0);
+                        safe_destroy(conn, evts, i, ready);
+                        continue;
+                    }
 
                     printf("%s" , conn->client_buffer);
 
                     conn->state = STATE_INSPECT_REQUEST;
-                    
+
                     struct epoll_event modEvt;
                     memset(&modEvt , 0 , sizeof(struct epoll_event));
                     modEvt.events = EPOLLOUT;
@@ -254,7 +373,17 @@ void start_loop_event(int listen_sock , waf_rules_t *rules , ac_node_t* root)
     
                 int inspector = inspect_traffic(conn , rules , root);
 
-                if(inspector == 1)
+                printf("inspector score : %d\n" , inspector);
+
+                if (inspector < 0)
+                {
+                    char *bad = "HTTP/1.1 400 Bad Request\r\nContent-Length: 12\r\n\r\nBad Request\n";
+                    send(conn->client_fd, bad, strlen(bad), 0);
+                    safe_destroy(conn, evts, i, ready);
+                    continue;
+                }
+
+                if(inspector >= 100)
                 {
                     char *forbidden = "HTTP/1.1 403 Forbidden\r\nContent-Length: 15\r\n\r\nAccess Denied.\n";
                     send(conn->client_fd , forbidden , strlen(forbidden) , 0);

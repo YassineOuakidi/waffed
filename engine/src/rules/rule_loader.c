@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include "../../include/http/http_parser.h"
 
 int parse_rule_line(rule_t *ruleItem, char *buff)
 {
@@ -17,18 +18,20 @@ int parse_rule_line(rule_t *ruleItem, char *buff)
 
     token = strtok_r(NULL, "|", &saveptr);
     if (token == NULL) { free(id_tmp); return -1; }
-    char *action_tmp = strdup(token);
+    int action_tmp = atoi(token);
 
     token = strtok_r(NULL, "|", &saveptr);
-    if (token == NULL) { free(id_tmp); free(action_tmp); return -1; }
+    if (token == NULL) { free(id_tmp); return -1; }
     char *zone_tmp = strdup(token);
 
     token = strtok_r(NULL, "|", &saveptr);
-    if (token == NULL) { free(id_tmp); free(action_tmp); free(zone_tmp); return -1; }
+    if (token == NULL) { free(id_tmp); free(zone_tmp); return -1; }
     char *match_tmp = strdup(token);
 
+    normalize_rule_pattern(match_tmp , zone_tmp);
+
     ruleItem->id = id_tmp;
-    ruleItem->action = action_tmp;
+    ruleItem->score = action_tmp;
     ruleItem->zone = zone_tmp;
     ruleItem->match_string = match_tmp;
 
@@ -90,7 +93,6 @@ void free_rules(waf_rules_t* rules)
     for (int i = 0; i < rules->count; i++)
     {
         if (rules->rules[i].id) free(rules->rules[i].id);
-        if (rules->rules[i].action) free(rules->rules[i].action);
         if (rules->rules[i].zone) free(rules->rules[i].zone);
         if (rules->rules[i].match_string) free(rules->rules[i].match_string);
     }

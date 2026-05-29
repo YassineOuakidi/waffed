@@ -1,8 +1,65 @@
-9001|BLOCK|URI|../
-9002|BLOCK|URI|%2e%2e%2f
-9003|BLOCK|BODY|<script>
-9004|BLOCK|URI|UNION ALL SELECT
-9005|BLOCK|HEADER:User-Agent|masscan
-9006|BLOCK|URI|/etc/passwd
-9007|BLOCK|BODY|; rm -rf
-9008|BLOCK|HEADER:Content-Type|application/x-java-archive
+9009|100|URI|' OR '1'='1
+9010|100|BODY|' OR 1=1
+9011|75|BODY|UNION SELECT
+9012|100|BODY|xp_cmdshell
+9013|75|URI|WAITFOR DELAY
+9014|75|BODY|pg_sleep(
+9015|100|URI|INFORMATION_SCHEMA
+9016|50|URI|--%20
+9017|50|BODY|SELECT * FROM
+9018|75|BODY|/*!50000
+9019|50|URI|' AND 1=1
+9020|75|URI|%27%20OR%20
+9021|100|BODY|EXEC sp_
+9022|75|URI|javascript:
+9023|75|BODY|onerror=
+9024|75|BODY|onload=
+9025|100|URI|<svg/onload=
+9026|75|BODY|document.cookie
+9027|50|URI|alert(
+9028|50|BODY|prompt(
+9029|100|URI|confirm(
+9030|50|BODY|<iframe>
+9031|75|URI|eval(
+9032|50|BODY|innerHTML
+9033|75|URI|%3Cscript%3E
+9034|100|BODY|document.write(
+9035|75|URI|/../
+9036|100|URI|/etc/shadow
+9037|100|URI|C:\Windows\System32
+9038|100|URI|win.ini
+9039|100|URI|/bin/bash
+9040|100|URI|/bin/sh
+9041|75|URI|php://filter
+9042|75|URI|php://input
+9043|100|URI|expect://
+9044|100|URI|data://text/plain
+9045|100|URI|/proc/self/environ
+9046|75|URI|%2e%2e%2f
+9047|100|BODY|;wget 
+9048|100|BODY|;curl 
+9049|100|URI|;nc -e
+9050|100|BODY|`whoami`
+9051|100|URI|$(whoami)
+9052|100|BODY|cmd.exe /c
+9053|100|BODY|powershell.exe -enc
+9054|75|URI|/dev/tcp/
+9055|100|BODY|bash -i
+9056|100|URI|;&
+905|100|HEADER:User-Agent|sqlmap
+9059|100|HEADER:User-Agent|nmap
+9060|100|HEADER:User-Agent|zgrab
+9061|100|HEADER:User-Agent|nikto
+9062|100|HEADER:User-Agent|dirbuster
+9063|100|HEADER:User-Agent|gobuster
+9064|100|HEADER:User-Agent|nuclei
+9065|100|HEADER:User-Agent|burppro
+9066|100|HEADER:User-Agent|hydra
+9067|50|HEADER:Content-Type|application/x-perl
+9068|50|HEADER:Content-Type|application/x-sh
+9069|75|URI|.git/config
+9070|75|URI|.env
+9071|75|URI|wp-config.php
+9072|100|BODY|-----BEGIN RSA PRIVATE KEY-----
+9073|100|BODY|-----BEGIN OPENSSH PRIVATE KEY-----
+9074|50|URI|/server-status
