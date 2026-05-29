@@ -11,10 +11,14 @@
             "id": "1148f5f62dbd51f2",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {},
+              "type": "markdown",
+              "state": {
+                "file": "03_perf_tests.md",
+                "mode": "source",
+                "source": false
+              },
               "icon": "lucide-file",
-              "title": "New tab"
+              "title": "03_perf_tests"
             }
           }
         ]
@@ -181,12 +185,12 @@
   },
   "active": "1148f5f62dbd51f2",
   "lastOpenFiles": [
+    "02_efficacy_tests.md",
+    "01_baseline_setup.md",
     "Pasted image 20260526193602.png",
     "Pasted image 20260526193913.png",
     "Pasted image 20260529014213.png",
     "03_perf_tests.md",
-    "02_efficacy_tests.md",
-    "01_baseline_setup.md",
     "Pasted.md",
     "Pasted image 20260529013118.png",
     "Pasted image 20260529012356.png",
