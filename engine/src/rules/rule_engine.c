@@ -16,7 +16,7 @@ int check_conn(http_request_t* req , ac_node_t* root)
     return score;
 }
 
-verdict_t inspect_traffic(connection_t *conn , waf_rules_t *rules , ac_node_t* root)
+verdict_t inspect_traffic(connection_t *conn , waf_rules_t *rules , ac_node_t* root , logger_t* logger , waf_config_t *config)
 {
     if(conn  == NULL)
         return -1;
@@ -32,39 +32,27 @@ verdict_t inspect_traffic(connection_t *conn , waf_rules_t *rules , ac_node_t* r
     {
         printf("Error Parsing the request");
         free_http_request(&req);
-        return -1;
+        insert_bad_request(logger , conn->client_buffer , conn->client_buffer_len);
+        return VERDICT_BAD_REQ;
     }
 
     int score = check_conn(&req , root);
-
-    verdict_t verdict;
-
-    if(score >=100)
-    {
-        verdict = VERDICT_DROP;
-        free_http_request(&req);
-    }
-    else if(score < 100 && score > 0)
-    {
-        lexer_t lx;
-        //checking uri
-        lexer_init(&lx , req.uri , strlen(req.uri) ,ZONE_URI);
-        if(check_sqli(&lx))
-        {
-            free_http_request(&req);
-            return VERDICT_DROP;
-        }
-        if(req.body)
-        {
-            lexer_init(&lx , req.body , strlen(req.body) , ZONE_BODY);
-            if(check_sqli(&lx))
-            {
-                free_http_request(&req);
-                return VERDICT_DROP;
-            }
-        }
-    }
     
+    if(score >= config->block_threshold)
+    {
+        free_http_request(&req);
+        insert_ac_blocked_log_line(logger , score);
+        return VERDICT_DROP;
+    }
+
+    detection_t reason = run_dfas(&req);
+    if(reason != CLEAN_REQUEST)
+    {
+        insert_dfa_blocked_log_line(logger , reason , conn->client_buffer , conn->client_buffer_len);
+        free_http_request(&req);
+        return VERDICT_DROP;
+    }
+
     free_http_request(&req);
     return VERDICT_ALLOW;
 }

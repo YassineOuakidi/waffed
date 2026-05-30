@@ -126,7 +126,7 @@ static int request_complete_for_now(connection_t *conn)
 
 
 
-void start_loop_event(int listen_sock , waf_rules_t *rules , ac_node_t* root)
+void start_loop_event(int listen_sock , waf_rules_t *rules , ac_node_t* root , logger_t* logger , waf_config_t *config)
 {
     int epfd = epoll_create1(0);
 
@@ -371,7 +371,7 @@ void start_loop_event(int listen_sock , waf_rules_t *rules , ac_node_t* root)
             else if (conn->state == STATE_INSPECT_REQUEST)
             {
     
-                verdict_t inspector = inspect_traffic(conn , rules , root);
+                verdict_t inspector = inspect_traffic(conn , rules , root , logger , config);
 
                 printf("inspector score : %d\n" , inspector);
 
@@ -402,7 +402,7 @@ void start_loop_event(int listen_sock , waf_rules_t *rules , ac_node_t* root)
                         continue;
                 }
 
-                int back_sockfd = connect_to_backend("127.0.0.1" , 8000);
+                int back_sockfd = connect_to_backend(config->backend_host, config->backend_port);
                         
                 if(back_sockfd < 0)
                 {

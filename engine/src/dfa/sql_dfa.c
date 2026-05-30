@@ -115,7 +115,7 @@ sql_class_t sql_classify(const token_t *tok)
     }
 }
 
-
+// check SQL DFA PNG file
 int check_sqli(lexer_t *lx)
 {
     token_t tok;

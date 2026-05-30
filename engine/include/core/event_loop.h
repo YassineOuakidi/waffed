@@ -12,7 +12,9 @@
 #include "../net/backend.h"
 #include "../rules/rule_loader.h"
 #include "../rules/aho_corasick.h"
+#include "../logging/logger.h"
+#include "../config/config_loader.h"
 
-void start_loop_event(int listen_sock , waf_rules_t *rules , ac_node_t* root);
+void start_loop_event(int listen_sock , waf_rules_t *rules , ac_node_t* root , logger_t *logger , waf_config_t *config);
 
 #endif
