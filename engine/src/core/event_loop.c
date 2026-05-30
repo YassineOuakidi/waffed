@@ -371,11 +371,11 @@ void start_loop_event(int listen_sock , waf_rules_t *rules , ac_node_t* root)
             else if (conn->state == STATE_INSPECT_REQUEST)
             {
     
-                int inspector = inspect_traffic(conn , rules , root);
+                verdict_t inspector = inspect_traffic(conn , rules , root);
 
                 printf("inspector score : %d\n" , inspector);
 
-                if (inspector < 0)
+                if (inspector == VERDICT_BAD_REQ)
                 {
                     char *bad = "HTTP/1.1 400 Bad Request\r\nContent-Length: 12\r\n\r\nBad Request\n";
                     send(conn->client_fd, bad, strlen(bad), 0);
@@ -383,7 +383,7 @@ void start_loop_event(int listen_sock , waf_rules_t *rules , ac_node_t* root)
                     continue;
                 }
 
-                if(inspector >= 100)
+                if(inspector == VERDICT_DROP)
                 {
                     char *forbidden = "HTTP/1.1 403 Forbidden\r\nContent-Length: 15\r\n\r\nAccess Denied.\n";
                     send(conn->client_fd , forbidden , strlen(forbidden) , 0);

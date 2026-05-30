@@ -2,15 +2,14 @@
 #define LEXER_H
 
 
-#define CC_WORD    (1 << 0) // 0x01
-#define CC_DIGIT   (1 << 1) // 0x02
-#define CC_SPACE   (1 << 2) // 0x04
-#define CC_QUOTE   (1 << 3) // 0x08
-#define CC_SPECIAL (1 << 4) // 0x10
+#define CC_WORD    (1 << 0) 
+#define CC_DIGIT   (1 << 1) 
+#define CC_SPACE   (1 << 2) 
+#define CC_QUOTE   (1 << 3) 
+#define CC_SPECIAL (1 << 4)
 
 typedef enum{
     TOK_EOF,
-    TOK_NEED_MORE,
     TOK_WORD,
     TOK_QUOTE,
     TOK_NUMBER,
@@ -35,13 +34,13 @@ typedef enum{
 typedef struct token{
     const char *start;
     int len;
-    token_kind_t tok;
+    token_kind_t kind;
     waf_zone_t zone;
 } token_t;
 
 typedef struct lexer{
     const char *base;
-    char *cur;
+    const char *cur;
     const char *end;
     waf_zone_t zone;
 }lexer_t;
