@@ -1,0 +1,228 @@
+{
+  "main": {
+    "id": "3ad6d57a8206c676",
+    "type": "split",
+    "children": [
+      {
+        "id": "dcf5ca60ac035543",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "1b8b2d475a8aba2f",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "docs/reports/final_report.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "final_report"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "fb3511807727a9d2",
+    "type": "split",
+    "children": [
+      {
+        "id": "e25bbf7040b09a9f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6d52fa7731204d0d",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "86c8ea27ef10ae94",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "0773f7e4387089af",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "392282fdeaabfcc6",
+    "type": "split",
+    "children": [
+      {
+        "id": "cdd49c8a1109bc74",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "da61f402b5cce3dc",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "docs/reports/final_report.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for final_report"
+            }
+          },
+          {
+            "id": "a72f2e88d437a73c",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "docs/reports/final_report.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from final_report"
+            }
+          },
+          {
+            "id": "a434718b9c3c0a48",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "b35fa6ef6de24ff3",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "c45df3bd35b4ba4c",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "docs/reports/final_report.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of final_report"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "1b8b2d475a8aba2f",
+  "lastOpenFiles": [
+    "docs/architecture/architecture.md",
+    "README.md",
+    "dashboard/README.md",
+    "eve-ng/01_topology_and_ip_plan.md",
+    "eve-ng/README.md",
+    "eve-ng/06_attack_scenarios.md",
+    "eve-ng/05_dashboard_and_operations.md",
+    "eve-ng/04_waf_engine_deployment.md",
+    "eve-ng/03_firewall_routing_and_access_control.md",
+    "eve-ng/02_node_setup.md",
+    "eve-ng/07_validation_and_troubleshooting.md",
+    "eve-ng/assets/29_dashboard_live_log_summary.png",
+    "eve-ng/assets/28_attack_direct_dvwa_timeout.png",
+    "eve-ng/assets/27_attack_sqlmap_user_agent_test.png",
+    "eve-ng/assets/26_attack_xss_script_blocked.png",
+    "eve-ng/assets/25_attack_time_sqli_blocked.png",
+    "eve-ng/assets/24_attack_union_sqli_blocked.png",
+    "eve-ng/assets/23_attack_basic_sqli_blocked.png",
+    "eve-ng/assets/22_attack_clean_request_allowed.png",
+    "eve-ng/assets/21_dashboard_rules_view.png",
+    "eve-ng/assets/20_dashboard_config_view.png",
+    "eve-ng/assets",
+    "eve-ng",
+    "eve-ng/docs/06_attack_scenarios.md",
+    "eve-ng/docs/05_dashboard_and_operations.md",
+    "eve-ng/docs/04_waf_engine_deployment.md",
+    "eve-ng/docs/09_defense_notes.md",
+    "eve-ng/docs/08_troubleshooting.md",
+    "eve-ng/docs/07_validation_checklist.md",
+    "eve-ng/docs 1/09_defense_notes.md",
+    "eve-ng/docs 1/08_troubleshooting.md",
+    "eve-ng/docs 1/07_validation_checklist.md",
+    "eve-ng/docs 1/06_attack_scenarios.md",
+    "eve-ng/docs 1/05_dashboard_and_operations.md",
+    "eve-ng/docs 1/04_waf_engine_deployment.md",
+    "eve-ng/docs 1/03_firewall_routing_and_rules.md",
+    "eve-ng/docs 1/02_node_setup.md",
+    "eve-ng/docs 1/01_topology_and_ip_plan.md",
+    "eve-ng/docs 1"
+  ]
+}
